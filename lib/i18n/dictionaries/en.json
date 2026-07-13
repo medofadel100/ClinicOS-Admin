@@ -1,9 +1,23 @@
 {
-  "welcomeMessage": "Welcome to ClinicOS Admin Dashboard",
-  "login": "Log in",
-  "email": "Email",
-  "password": "Password",
+  "welcomeMessage": "Welcome to ClinicOS Admin",
   "language": "Language",
   "arabic": "Arabic",
-  "english": "English"
+  "english": "English",
+  "email": "Email Address",
+  "password": "Password",
+  "login": "Login",
+  "dashboard": "Dashboard",
+  "manageAdmins": "Manage Admins",
+  "logout": "Logout",
+  "clinicTypes": "Clinic Types",
+  "features": "Features",
+  "plans": "Subscription Plans",
+  "clinics": "Clinics",
+  "payments": "Payments",
+  "profile": "My Profile",
+  "usageReports": "Usage Reports",
+  "upgradeRequests": "Upgrade Requests",
+  "auditLogs": "Audit Logs",
+  "discountCodes": "Discount Codes",
+  "announcements": "Announcements"
 }

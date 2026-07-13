@@ -38,11 +38,22 @@ export function LanguageProvider({
     }
   }, []);
 
-  const setLanguage = (lang: Language) => {
+  const setLanguage = async (lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem("preferred_language", lang);
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = lang;
+
+    // Persist to database if logged in
+    const { createClient } = await import("@/lib/supabase/client");
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from("platform_admins")
+        .update({ preferred_language: lang })
+        .eq("auth_user_id", user.id);
+    }
   };
 
   const t = (key: keyof Dictionary) => {

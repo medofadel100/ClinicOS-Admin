@@ -1,9 +1,23 @@
 {
   "welcomeMessage": "مرحباً بك في لوحة تحكم ClinicOS",
-  "login": "تسجيل الدخول",
-  "email": "البريد الإلكتروني",
-  "password": "كلمة المرور",
   "language": "اللغة",
   "arabic": "العربية",
-  "english": "الإنجليزية"
+  "english": "الإنجليزية",
+  "email": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "login": "تسجيل الدخول",
+  "dashboard": "الرئيسية",
+  "manageAdmins": "إدارة المسؤولين",
+  "logout": "تسجيل الخروج",
+  "clinicTypes": "تخصصات العيادات",
+  "features": "الميزات",
+  "plans": "خطط الاشتراك",
+  "clinics": "العيادات",
+  "payments": "المدفوعات",
+  "profile": "ملفي الشخصي",
+  "usageReports": "تقارير الاستخدام",
+  "upgradeRequests": "طلبات الترقية",
+  "auditLogs": "سجل التدقيق",
+  "discountCodes": "أكواد الخصم",
+  "announcements": "الإعلانات والرسائل"
 }
