@@ -5,6 +5,7 @@ import { getClinicEntitlements } from "@/lib/entitlements";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChangePlanForm } from "./_components/change-plan-form";
+import { ClinicStatusActions } from "./_components/clinic-status-actions";
 
 export default async function ClinicDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -53,10 +54,15 @@ export default async function ClinicDetailPage({ params }: { params: { id: strin
           <span className={`px-3 py-1 rounded-full text-sm font-bold ${
             clinic.status === 'active' ? 'bg-green-100 text-green-700' : 
             clinic.status === 'trial' ? 'bg-blue-100 text-blue-700' : 
+            clinic.status === 'suspended' ? 'bg-amber-100 text-amber-700' : 
+            clinic.status === 'cancelled' ? 'bg-red-100 text-red-700' : 
             'bg-slate-100 text-slate-700'
           }`}>
             {clinic.status.toUpperCase()}
           </span>
+          <div className="mt-3 flex justify-end">
+            <ClinicStatusActions clinicId={clinic.id} currentStatus={clinic.status} />
+          </div>
         </div>
       </div>
 

@@ -77,13 +77,17 @@ the filesystem.
 
 At the start of every work session, do this before writing code:
 
-1. Read all four spec files fully.
-2. Check which checkpoint was last completed (ask Ahmed if unclear, or look
+1. Read all five files fully.
+2. Check `docs/specs/` for any files numbered `08` or higher — these are
+   patches/corrections to already-completed checkpoints (e.g. a missing
+   edit feature, a missing UI action). Apply any you haven't already
+   applied before starting new checkpoint work.
+3. Check which checkpoint was last completed (ask Ahmed if unclear, or look
    for a `CHECKPOINT_STATUS.md` file if one exists in the repo).
-3. State out loud which checkpoint you're about to start and its acceptance
+4. State out loud which checkpoint you're about to start and its acceptance
    criteria, so Ahmed can correct you before you start if you've got it
    wrong.
-4. Only then start implementing.
+5. Only then start implementing.
 
 ## Tone with the operator
 

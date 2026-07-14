@@ -79,6 +79,14 @@ the table to store usage numbers that a future system will write into.
     Announcements module — they have different audiences, different
     channels, and different permission rules (see
     `02_Rules_and_Constraints.md` section C).
+14. **License Management** — issuing and tracking the signed license each
+    clinic's future Windows desktop app will verify. Auto-issued/refreshed
+    on subscription creation/renewal (see `03_Data_Models.md` sections
+    19–20). This module owns issuance, status (active/suspended/revoked),
+    expiry, and device-activation tracking; it does NOT own the actual
+    offline verification logic (public-key check, hardware binding) — that
+    lives in the future desktop app repo, which only *consumes* what this
+    module produces via the API in section 6 below.
 
 ## 4. Folder structure
 
@@ -130,16 +138,31 @@ the clinic-facing app will call.
 
 ## 6. Integration surface for future systems (build now, consume later)
 
-Two API routes are created in this phase even though nothing calls them yet,
-because the data model and the auth model for machine-to-machine calls
-should be decided once, here, rather than retrofitted later:
+Four API routes are created in this phase — two were already planned
+before any external system existed to call them; two more (the license
+endpoints) are needed now that license issuance is in scope
+(module 14 above), even though the Windows desktop app that will actually
+call them doesn't exist yet either. Same principle either way: decide the
+data model and auth model once, here, rather than retrofitting later.
 
 - `POST /api/v1/entitlements/check` — given a clinic ID and a feature code,
   returns whether it's allowed. Will be called by the clinic web app and,
-  eventually, the Windows app's license server.
+  eventually, the Windows app.
 - `POST /api/v1/usage/report` — lets a future system (WhatsApp bot, web app)
   push a usage record (e.g. AI tokens consumed). Protected by a service-role
   API key, not a user session.
+- `GET /api/v1/license/current` — **user-session authenticated** (not a
+  service-role key) — returns the calling clinic's current
+  `signed_payload` from `clinic_licenses`. This is what lets the desktop
+  app auto-recognize a licensed account when it has internet, with no
+  manual serial entry, per Ahmed's requirement.
+- `POST /api/v1/license/activate` — **service-role/API-key authenticated**
+  — given a `serial_code` and a `hardware_fingerprint`, validates the
+  license (active, not expired, under `max_activations`), creates a
+  `license_activations` row, and returns the `signed_payload`. This is the
+  path used for a true offline-at-install bootstrap, where a
+  `serial_code` was delivered to the clinic out-of-band (see
+  `03_Data_Models.md` section 19).
 
 These routes are stubbed with real implementations against the real tables
 — they are not fake placeholders — but no external system is registered to

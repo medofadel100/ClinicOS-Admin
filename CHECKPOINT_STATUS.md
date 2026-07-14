@@ -9,5 +9,5 @@
 - [x] Checkpoint 6 - completed on 2026-07-13 - Usage/token reporting & upgrade requests.
 - [x] Checkpoint 7 - completed on 2026-07-13 - Audit log & renewal alerts
 - [x] Checkpoint 8: Discounts & Coupons
-- [ ] Checkpoint 9: Announcements (Email & WhatsApp)
+- [x] Checkpoint 9: Announcements (Email & WhatsApp)
 - [ ] Checkpoint 10: In-app Notifications

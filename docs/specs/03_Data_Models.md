@@ -352,6 +352,58 @@ Per-admin delivery and read-state, mirroring the pattern used for
 | read_at | timestamptz, nullable | null = unread |
 | created_at | timestamptz | |
 
+## 19. `clinic_licenses`
+
+One active license record per clinic. Auto-created/refreshed whenever a
+`clinic_subscriptions` row is created or renewed — issuance is automatic,
+not a manual admin step, though an admin can regenerate or override one.
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid, PK | |
+| clinic_id | uuid, FK → `clinics.id`, unique | one active license row per clinic |
+| serial_code | text, unique | short human-typeable code (e.g. `CLOS-4F2A-9K3P-7Q1X`), used for support/identification — NOT itself the cryptographic proof, see note below |
+| signed_payload | text | the actual signed license blob (clinic_id, expiry, feature/plan snapshot), signed server-side with the license-signing private key (never exposed, see `02_Rules_and_Constraints.md` section H) |
+| status | `license_status` enum: `active`, `suspended`, `revoked`, `expired` | |
+| issued_at | timestamptz | |
+| expires_at | timestamptz | mirrors the clinic's `clinic_subscriptions.current_period_end`, refreshed on every renewal |
+| max_activations | integer | default 1 — how many devices can be active at once |
+| activation_count | integer | default 0, incremented by `license_activations` |
+| created_by | uuid, FK → `platform_admins.id`, nullable | null when auto-issued by the system |
+| updated_at | timestamptz | |
+
+**Why both a `serial_code` and a `signed_payload`?** A short code is easy
+to read over the phone or type once, but it can't itself securely carry a
+signed feature/expiry blob. The `signed_payload` is what the future
+Windows desktop app actually verifies offline (checked against its
+embedded public key). The `serial_code` is what a human uses to identify
+or activate a license *when the desktop app has no internet at first
+install* — in that case, Ahmed's team exports the full `signed_payload` as
+a license file (from the admin UI, section below) and delivers it to the
+clinic by any offline-safe means (email, USB), with the `serial_code` only
+serving as a friendly reference/lookup key, not the security mechanism
+itself.
+
+**When the desktop app HAS internet** (the common case), it never needs
+either of these typed in manually — it logs in with the clinic's normal
+account credentials and calls `GET /api/v1/license/current`, which returns
+the current `signed_payload` for that authenticated clinic automatically.
+
+## 20. `license_activations`
+
+Tracks which physical devices have activated a license — needed so a
+specific device can be identified and remotely deactivated (per the
+"deactivate this device" pattern discussed for the desktop app).
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid, PK | |
+| license_id | uuid, FK → `clinic_licenses.id` | |
+| hardware_fingerprint | text | hashed device identifier, sent by the desktop app at activation time |
+| device_label | text, nullable | e.g. "Reception PC" — admin or clinic can name it for their own clarity |
+| activated_at | timestamptz | |
+| deactivated_at | timestamptz, nullable | set when an admin (or the clinic itself, in the future desktop app's own settings) deactivates this device, freeing up an activation slot |
+
 ## Naming and typing conventions used throughout
 
 - All primary keys: `uuid`, default `gen_random_uuid()`.

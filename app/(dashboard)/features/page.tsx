@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { addFeature } from "./actions";
+import { FeatureRow } from "./_components/feature-row";
 
 export default async function FeaturesPage() {
   const supabase = createClient();
@@ -8,29 +9,6 @@ export default async function FeaturesPage() {
     .from("features")
     .select("*")
     .order("created_at", { ascending: false });
-
-  async function addFeature(formData: FormData) {
-    "use server";
-    const code = formData.get("code") as string;
-    const name_ar = formData.get("name_ar") as string;
-    const name_en = formData.get("name_en") as string;
-    const category = formData.get("category") as string;
-    const base_price_egp = formData.get("base_price_egp") as string;
-    
-    if (!code || !name_ar || !name_en || !category) return;
-
-    const supabase = createClient();
-    await supabase.from("features").insert({
-      code,
-      name_ar,
-      name_en,
-      category,
-      base_price_egp: base_price_egp ? parseFloat(base_price_egp) : null,
-      is_active: true,
-    });
-    
-    revalidatePath("/features");
-  }
 
   return (
     <div className="max-w-5xl mx-auto flex flex-col gap-8">
@@ -106,21 +84,12 @@ export default async function FeaturesPage() {
               <th className="px-6 py-3 font-semibold text-slate-700">Category</th>
               <th className="px-6 py-3 font-semibold text-slate-700">Base Price</th>
               <th className="px-6 py-3 font-semibold text-slate-700">Status</th>
+              <th className="px-6 py-3 font-semibold text-slate-700 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {features?.map((feature) => (
-              <tr key={feature.id} className="hover:bg-slate-50">
-                <td className="px-6 py-4 font-mono text-slate-700">{feature.code}</td>
-                <td className="px-6 py-4 font-medium text-slate-900">{feature.name_en}</td>
-                <td className="px-6 py-4 text-slate-600">{feature.category}</td>
-                <td className="px-6 py-4 text-slate-600">{feature.base_price_egp !== null ? `${feature.base_price_egp} EGP` : 'Included'}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${feature.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {feature.is_active ? "Active" : "Disabled"}
-                  </span>
-                </td>
-              </tr>
+              <FeatureRow key={feature.id} feature={feature} />
             ))}
             {!features?.length && (
               <tr>

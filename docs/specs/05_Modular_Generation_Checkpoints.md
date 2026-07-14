@@ -274,7 +274,40 @@ reuse that code or those tables.
 
 ---
 
-## After checkpoint 10
+## Checkpoint 11 — License management
+
+**Goal:** every clinic automatically gets a managed license, admins can
+control its status and see activated devices, and the two API endpoints
+the future desktop app will need already work correctly.
+
+**Deliverables:**
+- `clinic_licenses`, `license_activations` tables + RLS.
+- Ed25519 (or equivalent) keypair generated; private key stored as a
+  server-only environment variable (per `02_Rules_and_Constraints.md`
+  section H); public key documented (e.g. in a `LICENSE_PUBLIC_KEY.md` at
+  the repo root) so it's ready to hand to the future desktop app project.
+- Auto-issuance: creating or renewing a `clinic_subscriptions` row
+  automatically creates/updates that clinic's `clinic_licenses` row —
+  `signed_payload` regenerated, `expires_at` synced to
+  `current_period_end`.
+- Admin UI on the clinic detail page: license status, expiry, serial code,
+  list of activated devices with a "deactivate" action, and manual actions
+  (suspend, revoke, regenerate serial/payload).
+- `GET /api/v1/license/current` (user-session auth) and
+  `POST /api/v1/license/activate` (service-role/API-key auth), per
+  `01_Architecture.md` section 6.
+
+**Acceptance criteria:**
+- [ ] Creating a new clinic subscription automatically creates a `clinic_licenses` row with a correctly signed payload and `expires_at` matching the subscription's `current_period_end`.
+- [ ] Renewing a subscription updates the existing license's `expires_at` and regenerates `signed_payload` — it does not create a duplicate license row.
+- [ ] `GET /api/v1/license/current`, called with a valid clinic user session, returns that clinic's current signed payload and nothing else.
+- [ ] `POST /api/v1/license/activate` with a valid serial code, called under `max_activations`, succeeds and creates a `license_activations` row; called again beyond `max_activations` is rejected.
+- [ ] Suspending a license via the admin UI is reflected immediately if `/api/v1/license/current` is called again (a suspended license must not still validate as active).
+- [ ] `accountant` can suspend/revoke/regenerate and deactivate devices; `support` can view only.
+
+---
+
+## After checkpoint 11
 
 Stop and ask Ahmed for direction. Do not start building the clinic-facing
 web app or the Windows desktop app from this repo — those are separate

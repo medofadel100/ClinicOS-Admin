@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { addClinicType } from "./actions";
+import { ClinicTypeRow } from "./_components/clinic-type-row";
 
 export default async function ClinicTypesPage() {
   const supabase = createClient();
@@ -8,27 +9,6 @@ export default async function ClinicTypesPage() {
     .from("clinic_types")
     .select("*")
     .order("created_at", { ascending: false });
-
-  async function addClinicType(formData: FormData) {
-    "use server";
-    const code = formData.get("code") as string;
-    const name_ar = formData.get("name_ar") as string;
-    const name_en = formData.get("name_en") as string;
-    const description = formData.get("description") as string;
-    
-    if (!code || !name_ar || !name_en) return;
-
-    const supabase = createClient();
-    await supabase.from("clinic_types").insert({
-      code,
-      name_ar,
-      name_en,
-      description: description || null,
-      is_active: true,
-    });
-    
-    revalidatePath("/clinic-types");
-  }
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-8">
@@ -92,20 +72,12 @@ export default async function ClinicTypesPage() {
               <th className="px-6 py-3 font-semibold text-slate-700">Name (EN)</th>
               <th className="px-6 py-3 font-semibold text-slate-700">Name (AR)</th>
               <th className="px-6 py-3 font-semibold text-slate-700">Status</th>
+              <th className="px-6 py-3 font-semibold text-slate-700 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {clinicTypes?.map((type) => (
-              <tr key={type.id} className="hover:bg-slate-50">
-                <td className="px-6 py-4 font-mono text-slate-700">{type.code}</td>
-                <td className="px-6 py-4 font-medium text-slate-900">{type.name_en}</td>
-                <td className="px-6 py-4 text-slate-600">{type.name_ar}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${type.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {type.is_active ? "Active" : "Disabled"}
-                  </span>
-                </td>
-              </tr>
+              <ClinicTypeRow key={type.id} type={type} />
             ))}
             {!clinicTypes?.length && (
               <tr>

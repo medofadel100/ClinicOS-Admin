@@ -62,6 +62,9 @@ agent (or a new human developer) never has to guess.
 | View announcement delivery status | yes | yes | yes |
 | Broadcast an in-app notification (internal, to admins) | yes | no | no |
 | View/read own in-app notifications | yes | yes | yes |
+| Suspend/revoke a clinic's license, regenerate a serial | yes | yes | no |
+| View license status & device activations | yes | yes | yes |
+| Deactivate a specific device activation | yes | yes | no |
 
 This table must be mirrored exactly in the RLS policies, not just in the UI
 routing.
@@ -113,8 +116,12 @@ To keep scope honest and prevent an AI agent from over-building:
   ClinicOS to clinic *owners/staff* only — never to a clinic's patients.
   Any WhatsApp AI bot that talks to patients belongs to a different,
   future product (the clinic-facing web app), not this repo.
-- No license/serial signing logic yet (that belongs to the future
-  `license-core` package for the Windows app, not this admin dashboard).
+- License **issuance and management** (module 14) is now in scope for
+  this repo — see `03_Data_Models.md` sections 19–20. What's still out of
+  scope here: the actual offline signature-verification logic, hardware
+  fingerprinting, and activation UI that will live *inside* the future
+  Windows desktop app itself — this repo only produces signed payloads
+  and tracks their status; it doesn't run on a clinic's machine.
 - No multi-currency support. EGP only.
 - No automatic discount generation yet (Checkpoint 8 builds manual
   creation and application of discount codes by an admin; auto-generating
@@ -157,14 +164,18 @@ protected — they are not a claim of perfect secrecy.
   temporarily. Collaborator access is granted per-person, not via a shared
   link.
 - **No secret ever enters git history.** `.env.local` (or any file holding
-  real API keys, the Supabase service-role key, or a future license-signing
-  private key) is listed in `.gitignore` from the very first commit of the
-  project — not added after the fact. Only `.env.example` with placeholder
-  values is committed.
-- **The Supabase service-role key and any future license-signing private
-  key live only as environment variables on the server** (Vercel env vars /
-  the future license-server host) — never in client-reachable code, never
-  logged, never returned in an API response.
+  real API keys, the Supabase service-role key, or the license-signing
+  private key used by `POST /api/v1/license/activate` and license
+  auto-issuance) is listed in `.gitignore` from the very first commit of
+  the project — not added after the fact. Only `.env.example` with
+  placeholder values is committed.
+- **The Supabase service-role key and the license-signing private key
+  live only as environment variables on the server** (Vercel env vars) —
+  never in client-reachable code, never logged, never returned in an API
+  response. The license-signing key is Ed25519 (or an equivalent
+  asymmetric scheme) — only the **public** key is ever meant to leave this
+  server, embedded in the future desktop app's build for verification;
+  the private key never leaves this repo's environment variables.
 - **Production builds never ship browser source maps.** Next.js:
   `productionBrowserSourceMaps: false` (this is the framework default —
   verify it stays false, don't enable it for "easier debugging" in
