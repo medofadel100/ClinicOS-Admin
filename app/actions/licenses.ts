@@ -123,7 +123,7 @@ export async function createLicense(clinicId: string, serialCode: string, expire
     signed_payload: signedPayload,
     license_version: 1,
     status: "active" as const,
-    expires_at: expiresAt || null,
+    expires_at: expiresAt || undefined,
   };
 
   const { error } = await supabase
