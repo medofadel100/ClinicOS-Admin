@@ -56,8 +56,8 @@ export default function OfflineGeneratorModal() {
       setClinicId("")
       setExpiresAt("")
       setFeatures([])
-    } catch (err: any) {
-      toast.error(err.message || "Failed to generate offline license.")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate offline license.")
     } finally {
       setIsLoading(false)
     }

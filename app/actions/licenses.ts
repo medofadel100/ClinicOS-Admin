@@ -72,7 +72,7 @@ export async function approvePayment(id: string, newExpiresAt?: string) {
   if (fetchError || !license) throw new Error("License not found");
   if (license.status !== "trial") throw new Error("License is not in trial status");
 
-  const updates: any = {
+  const updates: Record<string, unknown> = {
     status: "active",
     license_version: license.license_version + 1,
     updated_at: new Date().toISOString(),
@@ -107,11 +107,11 @@ export async function updateSerial(id: string, newSerial: string) {
   if (fetchError || !license) throw new Error("License not found");
 
   // We need to parse the existing payload to keep its features, or generate a new basic payload
-  let existingPayloadObj: any = {};
+  let existingPayloadObj: Record<string, unknown> = {};
   try {
     const parsed = JSON.parse(license.signed_payload);
     existingPayloadObj = parsed.payload || {};
-  } catch (e) {
+  } catch {
     // Fallback if parsing fails
   }
 
@@ -144,7 +144,7 @@ export async function updateSerial(id: string, newSerial: string) {
 /**
  * Helper to generate the JSON signed payload for the database
  */
-function signPayloadJSON(payload: any): string {
+function signPayloadJSON(payload: Record<string, unknown>): string {
   const privateKeyPem = process.env.CLINICOS_PRIVATE_KEY;
   if (!privateKeyPem) throw new Error("CLINICOS_PRIVATE_KEY is not configured in Vercel.");
 

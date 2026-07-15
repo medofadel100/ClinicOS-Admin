@@ -14,8 +14,18 @@ import {
 } from "@/components/ui/table"
 import toast from "react-hot-toast"
 
-export default function LicenseTable({ initialData }: { initialData: any[] }) {
-  const [licenses, setLicenses] = useState(initialData)
+type License = {
+  id: string
+  serial_code: string
+  status: string
+  license_version: number
+  expires_at?: string | null
+  trial_expires_at?: string | null
+  clinics?: { name: string; email: string } | null
+}
+
+export default function LicenseTable({ initialData }: { initialData: License[] }) {
+  const [licenses, setLicenses] = useState<License[]>(initialData)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editSerialCode, setEditSerialCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -27,8 +37,8 @@ export default function LicenseTable({ initialData }: { initialData: any[] }) {
       await revokeLicense(id)
       setLicenses(licenses.map(l => l.id === id ? { ...l, status: "revoked", license_version: l.license_version + 1 } : l))
       toast.success("License revoked successfully")
-    } catch (e: any) {
-      toast.error(e.message)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "An error occurred")
     } finally {
       setIsLoading(false)
     }
@@ -40,8 +50,8 @@ export default function LicenseTable({ initialData }: { initialData: any[] }) {
       await approvePayment(id)
       setLicenses(licenses.map(l => l.id === id ? { ...l, status: "active", license_version: l.license_version + 1 } : l))
       toast.success("Payment approved. License is now active.")
-    } catch (e: any) {
-      toast.error(e.message)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "An error occurred")
     } finally {
       setIsLoading(false)
     }
@@ -55,8 +65,8 @@ export default function LicenseTable({ initialData }: { initialData: any[] }) {
       setLicenses(licenses.map(l => l.id === id ? { ...l, serial_code: editSerialCode, license_version: l.license_version + 1 } : l))
       setEditingId(null)
       toast.success("Serial updated and payload signed.")
-    } catch (e: any) {
-      toast.error(e.message)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "An error occurred")
     } finally {
       setIsLoading(false)
     }
