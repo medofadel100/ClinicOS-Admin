@@ -34,12 +34,14 @@ export async function GET(request: Request) {
 
   // 3. Fetch current license
   // Including license_version as per new DB schema update
-  const { data: license, error: licenseError } = await supabase
+  const { data: licenseData, error: licenseError } = await supabase
     .from("clinic_licenses")
     .select("signed_payload, status, expires_at, license_version")
     .eq("clinic_id", clinic.id)
     .single();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const license = licenseData as any;
   if (licenseError || !license) {
     return NextResponse.json({ error: "No license found" }, { status: 404 });
   }
