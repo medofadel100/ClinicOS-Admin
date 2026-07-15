@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { format } from "date-fns"
-import { revokeLicense, approvePayment, updateSerial } from "@/app/actions/licenses"
+import { revokeLicense, approvePayment } from "@/app/actions/licenses"
 import { Button } from "@/components/ui/button"
 import {
   Table,
@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import toast from "react-hot-toast"
+import EditLicenseModal from "./edit-license-modal"
 
 type License = {
   id: string
@@ -21,14 +22,18 @@ type License = {
   license_version: number
   expires_at?: string | null
   trial_expires_at?: string | null
+  signed_payload?: string
   clinics?: { name: string; email: string } | null
 }
 
 export default function LicenseTable({ initialData }: { initialData: License[] }) {
   const [licenses, setLicenses] = useState<License[]>(initialData)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editSerialCode, setEditSerialCode] = useState("")
+  const [editingLicense, setEditingLicense] = useState<License | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    setLicenses(initialData)
+  }, [initialData])
 
   const handleRevoke = async (id: string) => {
     if (!confirm("Are you sure you want to revoke this license? This will lock the user out upon next sync.")) return
@@ -57,22 +62,8 @@ export default function LicenseTable({ initialData }: { initialData: License[] }
     }
   }
 
-  const handleSaveSerial = async (id: string) => {
-    if (!editSerialCode) return
-    setIsLoading(true)
-    try {
-      await updateSerial(id, editSerialCode)
-      setLicenses(licenses.map(l => l.id === id ? { ...l, serial_code: editSerialCode, license_version: l.license_version + 1 } : l))
-      setEditingId(null)
-      toast.success("Serial updated and payload signed.")
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "An error occurred")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   return (
+    <>
     <Table>
       <TableHeader>
         <TableRow className="bg-slate-50 dark:bg-slate-900/50">
@@ -88,25 +79,12 @@ export default function LicenseTable({ initialData }: { initialData: License[] }
         {licenses.map((license) => (
           <TableRow key={license.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
             <TableCell className="font-mono text-sm font-medium">
-              {editingId === license.id ? (
-                <div className="flex gap-2 items-center">
-                  <input 
-                    className="border px-3 py-1.5 rounded-md w-full text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:bg-slate-900 dark:border-slate-700" 
-                    value={editSerialCode} 
-                    onChange={e => setEditSerialCode(e.target.value)} 
-                  />
-                  <Button size="sm" onClick={() => handleSaveSerial(license.id)} disabled={isLoading} className="h-8">Save</Button>
-                  <Button size="sm" variant="ghost" onClick={() => setEditingId(null)} className="h-8">Cancel</Button>
-                </div>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <span className="truncate max-w-[180px]" title={license.serial_code}>{license.serial_code}</span>
-                  <button onClick={() => {
-                    setEditingId(license.id)
-                    setEditSerialCode(license.serial_code)
-                  }} className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-xs font-semibold">Edit</button>
-                </span>
-              )}
+              <span className="flex items-center gap-2">
+                <span className="truncate max-w-[180px]" title={license.serial_code}>{license.serial_code}</span>
+                <button onClick={() => {
+                  setEditingLicense(license)
+                }} className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-xs font-semibold">Edit</button>
+              </span>
             </TableCell>
             <TableCell>
               <span className={`px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide border ${
@@ -153,5 +131,11 @@ export default function LicenseTable({ initialData }: { initialData: License[] }
         )}
       </TableBody>
     </Table>
+    <EditLicenseModal 
+      license={editingLicense as any} 
+      isOpen={!!editingLicense} 
+      onClose={() => setEditingLicense(null)} 
+    />
+    </>
   )
 }

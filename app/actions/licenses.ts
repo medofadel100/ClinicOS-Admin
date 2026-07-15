@@ -102,9 +102,47 @@ export async function approvePayment(id: string, newExpiresAt?: string) {
 }
 
 /**
- * Update Serial and regenerate signed_payload
+ * Create a new license
  */
-export async function updateSerial(id: string, newSerial: string) {
+export async function createLicense(clinicId: string, serialCode: string, expiresAt: string, features: string[]) {
+  const supabase = createClient();
+
+  const payload = {
+    clinicId,
+    expiresAt,
+    features,
+    licenseVersion: 1,
+    issuedAt: new Date().toISOString(),
+  };
+
+  const signedPayload = signPayloadJSON(payload);
+
+  const newLicense = {
+    clinic_id: clinicId,
+    serial_code: serialCode,
+    signed_payload: signedPayload,
+    license_version: 1,
+    status: "active",
+    expires_at: expiresAt || null,
+  };
+
+  const { error } = await supabase
+    .from("clinic_licenses")
+    .insert(newLicense);
+
+  if (error) {
+    console.error("DB Error creating license:", error);
+    throw new Error(error.message);
+  }
+
+  console.log(`Successfully created license for clinic ${clinicId}`);
+  revalidatePath("/licenses");
+}
+
+/**
+ * Update License and regenerate signed_payload
+ */
+export async function updateLicense(id: string, newSerial: string, newExpiresAt: string, newFeatures: string[]) {
   const supabase = createClient();
 
   const { data: licenseData, error: fetchError } = await supabase
@@ -115,24 +153,19 @@ export async function updateSerial(id: string, newSerial: string) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const license = licenseData as any;
-  if (fetchError || !license) throw new Error("License not found");
-
-  // We need to parse the existing payload to keep its features, or generate a new basic payload
-  let existingPayloadObj: Record<string, unknown> = {};
-  try {
-    const parsed = JSON.parse(license.signed_payload);
-    existingPayloadObj = parsed.payload || {};
-  } catch {
-    // Fallback if parsing fails
+  if (fetchError || !license) {
+    console.error("DB Error fetching license for update:", fetchError);
+    throw new Error("License not found");
   }
 
   const newVersion = license.license_version + 1;
 
   const payload = {
-    ...existingPayloadObj,
     clinicId: license.clinic_id,
-    expiresAt: license.expires_at,
+    expiresAt: newExpiresAt || license.expires_at,
+    features: newFeatures,
     licenseVersion: newVersion,
+    issuedAt: new Date().toISOString(),
   };
 
   const signedPayload = signPayloadJSON(payload);
@@ -142,6 +175,7 @@ export async function updateSerial(id: string, newSerial: string) {
     serial_code: newSerial,
     signed_payload: signedPayload,
     license_version: newVersion,
+    expires_at: newExpiresAt || null,
     updated_at: new Date().toISOString(),
   };
 
@@ -150,8 +184,12 @@ export async function updateSerial(id: string, newSerial: string) {
     .update(updates)
     .eq("id", id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("DB Error updating license:", error);
+    throw new Error(error.message);
+  }
 
+  console.log(`Successfully updated license ${id} to version ${newVersion}`);
   revalidatePath("/licenses");
 }
 
