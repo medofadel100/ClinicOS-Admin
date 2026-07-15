@@ -31,7 +31,7 @@ export function LicenseManager({ clinicId, license }: { clinicId: string, licens
         <h2 className="text-lg font-semibold mb-2">Offline License</h2>
         <p className="text-slate-500 italic text-sm">No license has been issued for this clinic yet. It will be generated automatically when a subscription is created or renewed.</p>
         <button 
-          onClick={() => startTransition(() => regenerateLicense(clinicId))}
+          onClick={() => startTransition(() => { regenerateLicense(clinicId); })}
           disabled={isPending}
           className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 w-fit"
         >

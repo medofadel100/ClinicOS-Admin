@@ -252,36 +252,39 @@ export interface Database {
           id: string;
           clinic_id: string;
           plan_id: string;
-          status: "trial" | "active" | "past_due" | "cancelled";
+          status: "trial" | "active" | "past_due" | "cancelled" | "pending_confirmation";
           price_locked_egp: number;
           discount_code_id: string | null;
           trial_ends_at: string | null;
           current_period_start: string;
           current_period_end: string;
+          pending_confirmation_expires_at: string | null;
           created_at: string;
         };
         Insert: {
           id?: string;
           clinic_id: string;
           plan_id: string;
-          status: "trial" | "active" | "past_due" | "cancelled";
+          status: "trial" | "active" | "past_due" | "cancelled" | "pending_confirmation";
           price_locked_egp: number;
           discount_code_id?: string | null;
           trial_ends_at?: string | null;
           current_period_start: string;
           current_period_end: string;
+          pending_confirmation_expires_at?: string | null;
           created_at?: string;
         };
         Update: {
           id?: string;
           clinic_id?: string;
           plan_id?: string;
-          status?: "trial" | "active" | "past_due" | "cancelled";
+          status?: "trial" | "active" | "past_due" | "cancelled" | "pending_confirmation";
           price_locked_egp?: number;
           discount_code_id?: string | null;
           trial_ends_at?: string | null;
           current_period_start?: string;
           current_period_end?: string;
+          pending_confirmation_expires_at?: string | null;
           created_at?: string;
         };
         Relationships: [
@@ -779,6 +782,98 @@ export interface Database {
           }
         ];
       };
+      clinic_licenses: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          serial_code: string;
+          signed_payload: string;
+          status: "active" | "suspended" | "revoked" | "expired";
+          issued_at: string;
+          expires_at: string;
+          max_activations: number;
+          activation_count: number;
+          created_by: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          serial_code: string;
+          signed_payload: string;
+          status?: "active" | "suspended" | "revoked" | "expired";
+          issued_at?: string;
+          expires_at: string;
+          max_activations?: number;
+          activation_count?: number;
+          created_by?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          serial_code?: string;
+          signed_payload?: string;
+          status?: "active" | "suspended" | "revoked" | "expired";
+          issued_at?: string;
+          expires_at?: string;
+          max_activations?: number;
+          activation_count?: number;
+          created_by?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "clinic_licenses_clinic_id_fkey";
+            columns: ["clinic_id"];
+            isOneToOne: true;
+            referencedRelation: "clinics";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "clinic_licenses_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "platform_admins";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      license_activations: {
+        Row: {
+          id: string;
+          license_id: string;
+          hardware_fingerprint: string;
+          device_label: string | null;
+          activated_at: string;
+          deactivated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          license_id: string;
+          hardware_fingerprint: string;
+          device_label?: string | null;
+          activated_at?: string;
+          deactivated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          license_id?: string;
+          hardware_fingerprint?: string;
+          device_label?: string | null;
+          activated_at?: string;
+          deactivated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "license_activations_license_id_fkey";
+            columns: ["license_id"];
+            isOneToOne: false;
+            referencedRelation: "clinic_licenses";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -797,7 +892,7 @@ export interface Database {
       billing_cycle: "monthly" | "yearly";
       plan_limit_type: "provider_seats" | "patients" | "staff_accounts";
       clinic_status: "trial" | "active" | "past_due" | "suspended" | "cancelled";
-      subscription_status: "trial" | "active" | "past_due" | "cancelled";
+      subscription_status: "trial" | "active" | "past_due" | "cancelled" | "pending_confirmation";
       override_type: "grant" | "revoke";
       payment_method: "bank_transfer" | "cash" | "vodafone_cash" | "instapay" | "other";
       payment_status: "pending" | "confirmed" | "failed";
