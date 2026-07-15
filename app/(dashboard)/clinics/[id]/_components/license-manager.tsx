@@ -1,7 +1,7 @@
 "use client";
 
-import { useTransition } from "react";
-import { suspendLicense, revokeLicense, activateLicense, regenerateLicense, deactivateDevice } from "../license-actions";
+import { useTransition, useState } from "react";
+import { suspendLicense, revokeLicense, activateLicense, regenerateLicense, deactivateDevice, updateMaxActivations } from "../license-actions";
 
 type LicenseActivation = {
   id: string;
@@ -14,6 +14,7 @@ type LicenseActivation = {
 type ClinicLicense = {
   id: string;
   serial_code: string;
+  signed_payload: string;
   status: string;
   issued_at: string;
   expires_at: string;
@@ -24,6 +25,7 @@ type ClinicLicense = {
 
 export function LicenseManager({ clinicId, license }: { clinicId: string, license: ClinicLicense | null }) {
   const [isPending, startTransition] = useTransition();
+  const [isEditingMax, setIsEditingMax] = useState(false);
 
   if (!license) {
     return (
@@ -93,7 +95,39 @@ export function LicenseManager({ clinicId, license }: { clinicId: string, licens
           </div>
           <div>
             <div className="text-sm text-slate-500">Activations</div>
-            <div className="font-medium text-sm mt-1">{license.activation_count} / {license.max_activations} used</div>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="font-medium text-sm">{license.activation_count} / </span>
+              {isEditingMax ? (
+                <form 
+                  action={(formData) => {
+                    const max = parseInt(formData.get("max") as string, 10);
+                    if (!isNaN(max) && max >= license.activation_count) {
+                      startTransition(() => {
+                        updateMaxActivations(clinicId, max).then(() => setIsEditingMax(false));
+                      });
+                    } else {
+                      alert("Max activations must be a number greater than or equal to current usage.");
+                    }
+                  }}
+                  className="flex items-center gap-1"
+                >
+                  <input 
+                    name="max" 
+                    type="number" 
+                    defaultValue={license.max_activations} 
+                    min={license.activation_count}
+                    className="w-16 border border-slate-300 rounded px-1 text-sm py-0.5 outline-none"
+                  />
+                  <button type="submit" disabled={isPending} className="text-blue-600 text-xs font-medium hover:underline">Save</button>
+                  <button type="button" onClick={() => setIsEditingMax(false)} disabled={isPending} className="text-slate-500 text-xs hover:underline">Cancel</button>
+                </form>
+              ) : (
+                <>
+                  <span className="font-medium text-sm">{license.max_activations} used</span>
+                  <button onClick={() => setIsEditingMax(true)} className="text-blue-600 text-xs hover:underline">Edit</button>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
@@ -129,6 +163,22 @@ export function LicenseManager({ clinicId, license }: { clinicId: string, licens
             className="text-left text-sm text-blue-600 font-medium hover:underline mt-2"
           >
             Regenerate Payload
+          </button>
+          <button 
+            onClick={() => {
+              const blob = new Blob([license.signed_payload], { type: "text/plain;charset=utf-8" });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `${license.serial_code}.clinicos`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+            }} 
+            className="text-left text-sm text-indigo-600 font-medium hover:underline mt-2"
+          >
+            Download Offline License
           </button>
         </div>
       </div>

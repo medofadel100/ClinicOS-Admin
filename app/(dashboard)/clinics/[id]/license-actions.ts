@@ -116,6 +116,21 @@ export async function deactivateDevice(activationId: string, clinicId: string) {
       .update({ activation_count: currentLicense.activation_count - 1 })
       .eq("id", activation.license_id);
   }
+  revalidatePath(`/clinics/${clinicId}`);
+  return { success: true };
+}
+
+export async function updateMaxActivations(clinicId: string, maxActivations: number) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("clinic_licenses")
+    .update({ max_activations: maxActivations })
+    .eq("clinic_id", clinicId);
+
+  if (error) {
+    console.error(error);
+    return { error: "Failed to update max activations" };
+  }
 
   revalidatePath(`/clinics/${clinicId}`);
   return { success: true };
