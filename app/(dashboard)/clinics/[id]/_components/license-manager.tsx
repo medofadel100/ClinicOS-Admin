@@ -40,8 +40,8 @@ export function LicenseManager({ clinicId, license, hasOfflineAccess = false }: 
           toast.success("License generated successfully!");
           router.refresh();
         }
-      } catch (err: any) {
-        toast.error(err.message || "An unexpected error occurred");
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "An unexpected error occurred");
       }
     });
   };
@@ -51,7 +51,7 @@ export function LicenseManager({ clinicId, license, hasOfflineAccess = false }: 
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col p-6">
         <h2 className="text-lg font-semibold mb-2">Offline License</h2>
         {!hasOfflineAccess ? (
-          <p className="text-red-500 italic text-sm mb-4">This clinic's current subscription plan does not include Offline/Desktop access. Upgrade the plan or purchase the Offline Add-on to enable license generation.</p>
+          <p className="text-red-500 italic text-sm mb-4">This clinic&apos;s current subscription plan does not include Offline/Desktop access. Upgrade the plan or purchase the Offline Add-on to enable license generation.</p>
         ) : (
           <p className="text-slate-500 italic text-sm mb-4">No license has been issued for this clinic yet. It will be generated automatically when a subscription is created or renewed.</p>
         )}
@@ -77,8 +77,8 @@ export function LicenseManager({ clinicId, license, hasOfflineAccess = false }: 
             toast.success(successMessage);
             router.refresh();
           }
-        } catch (err: any) {
-          toast.error(err.message || "Action failed");
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Action failed");
         }
       });
     }
@@ -95,8 +95,8 @@ export function LicenseManager({ clinicId, license, hasOfflineAccess = false }: 
             toast.success("Device deactivated successfully");
             router.refresh();
           }
-        } catch (err: any) {
-          toast.error(err.message || "Failed to deactivate device");
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Failed to deactivate device");
         }
       });
     }
