@@ -71,9 +71,9 @@ export async function regenerateLicense(clinicId: string) {
 
   try {
     await issueOrUpdateLicense(clinicId, new Date(currentSub.current_period_end));
-  } catch (err) {
-    console.error(err);
-    return { error: "Failed to regenerate license payload" };
+  } catch (err: unknown) {
+    console.error("LICENSE_GENERATION_ERROR:", err);
+    return { error: err instanceof Error ? err.message : "Unknown error" };
   }
 
   revalidatePath(`/clinics/${clinicId}`);

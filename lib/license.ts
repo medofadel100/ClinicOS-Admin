@@ -90,7 +90,7 @@ export async function issueOrUpdateLicense(clinicId: string, expiresAt: Date) {
 
   if (error || !license) {
     console.error("Failed to upsert clinic license", error);
-    throw new Error("Failed to generate or update clinic license");
+    throw new Error(error?.message || "Failed to generate or update clinic license");
   }
 
   return license;
