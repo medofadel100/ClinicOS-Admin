@@ -132,6 +132,7 @@ export default function LicenseTable({ initialData }: { initialData: License[] }
       </TableBody>
     </Table>
     <EditLicenseModal 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       license={editingLicense as any} 
       isOpen={!!editingLicense} 
       onClose={() => setEditingLicense(null)} 
