@@ -1,6 +1,8 @@
 "use client";
 
 import { useTransition, useState } from "react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { suspendLicense, revokeLicense, activateLicense, regenerateLicense, deactivateDevice, updateMaxActivations } from "../license-actions";
 
 type LicenseActivation = {
@@ -23,19 +25,40 @@ type ClinicLicense = {
   license_activations: LicenseActivation[];
 };
 
-export function LicenseManager({ clinicId, license }: { clinicId: string, license: ClinicLicense | null }) {
+export function LicenseManager({ clinicId, license, hasOfflineAccess = false }: { clinicId: string, license: ClinicLicense | null, hasOfflineAccess?: boolean }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isEditingMax, setIsEditingMax] = useState(false);
+
+  const handleForceGenerate = () => {
+    startTransition(async () => {
+      try {
+        const res = await regenerateLicense(clinicId) as { error?: string, success?: boolean };
+        if (res?.error) {
+          toast.error(res.error);
+        } else {
+          toast.success("License generated successfully!");
+          router.refresh();
+        }
+      } catch (err: any) {
+        toast.error(err.message || "An unexpected error occurred");
+      }
+    });
+  };
 
   if (!license) {
     return (
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col p-6">
         <h2 className="text-lg font-semibold mb-2">Offline License</h2>
-        <p className="text-slate-500 italic text-sm">No license has been issued for this clinic yet. It will be generated automatically when a subscription is created or renewed.</p>
+        {!hasOfflineAccess ? (
+          <p className="text-red-500 italic text-sm mb-4">This clinic's current subscription plan does not include Offline/Desktop access. Upgrade the plan or purchase the Offline Add-on to enable license generation.</p>
+        ) : (
+          <p className="text-slate-500 italic text-sm mb-4">No license has been issued for this clinic yet. It will be generated automatically when a subscription is created or renewed.</p>
+        )}
         <button 
-          onClick={() => startTransition(() => { regenerateLicense(clinicId); })}
-          disabled={isPending}
-          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 w-fit"
+          onClick={handleForceGenerate}
+          disabled={isPending || !hasOfflineAccess}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 w-fit disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPending ? "Generating..." : "Force Generate License"}
         </button>
@@ -43,18 +66,38 @@ export function LicenseManager({ clinicId, license }: { clinicId: string, licens
     );
   }
 
-  const handleAction = (action: (clinicId: string) => Promise<unknown>) => {
+  const handleAction = (action: (clinicId: string) => Promise<unknown>, successMessage: string) => {
     if (confirm("Are you sure you want to perform this action?")) {
-      startTransition(() => {
-        action(clinicId);
+      startTransition(async () => {
+        try {
+          const res = await action(clinicId) as { error?: string, success?: boolean };
+          if (res?.error) {
+            toast.error(res.error);
+          } else {
+            toast.success(successMessage);
+            router.refresh();
+          }
+        } catch (err: any) {
+          toast.error(err.message || "Action failed");
+        }
       });
     }
   };
 
   const handleDeactivate = (activationId: string) => {
     if (confirm("Deactivate this device? It will free up an activation slot.")) {
-      startTransition(() => {
-        deactivateDevice(activationId, clinicId);
+      startTransition(async () => {
+        try {
+          const res = await deactivateDevice(activationId, clinicId) as { error?: string, success?: boolean };
+          if (res?.error) {
+            toast.error(res.error);
+          } else {
+            toast.success("Device deactivated successfully");
+            router.refresh();
+          }
+        } catch (err: any) {
+          toast.error(err.message || "Failed to deactivate device");
+        }
       });
     }
   };
@@ -135,7 +178,7 @@ export function LicenseManager({ clinicId, license }: { clinicId: string, licens
           <h3 className="font-semibold text-sm mb-1">Actions</h3>
           {license.status === "active" ? (
             <button 
-              onClick={() => handleAction(suspendLicense)} 
+              onClick={() => handleAction(suspendLicense, "License suspended")} 
               disabled={isPending}
               className="text-left text-sm text-amber-600 font-medium hover:underline"
             >
@@ -143,7 +186,7 @@ export function LicenseManager({ clinicId, license }: { clinicId: string, licens
             </button>
           ) : (
             <button 
-              onClick={() => handleAction(activateLicense)} 
+              onClick={() => handleAction(activateLicense, "License activated")} 
               disabled={isPending}
               className="text-left text-sm text-green-600 font-medium hover:underline"
             >
@@ -151,14 +194,14 @@ export function LicenseManager({ clinicId, license }: { clinicId: string, licens
             </button>
           )}
           <button 
-            onClick={() => handleAction(revokeLicense)} 
+            onClick={() => handleAction(revokeLicense, "License revoked")} 
             disabled={isPending || license.status === "revoked"}
             className="text-left text-sm text-red-600 font-medium hover:underline disabled:opacity-50"
           >
             Revoke License
           </button>
           <button 
-            onClick={() => handleAction(regenerateLicense)} 
+            onClick={() => handleAction(regenerateLicense, "License payload regenerated")} 
             disabled={isPending}
             className="text-left text-sm text-blue-600 font-medium hover:underline mt-2"
           >

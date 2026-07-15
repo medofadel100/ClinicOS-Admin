@@ -4,6 +4,7 @@ import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/context";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -44,6 +45,7 @@ export default async function RootLayout({
         <LanguageProvider initialLanguage={initialLanguage}>
           {children}
         </LanguageProvider>
+        <Toaster />
       </body>
     </html>
   );
