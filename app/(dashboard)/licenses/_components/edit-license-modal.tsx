@@ -55,7 +55,7 @@ export default function EditLicenseModal({
           if (parsed.payload && Array.isArray(parsed.payload.features)) {
             initialFeatures = parsed.payload.features
           }
-        } catch (_e) {
+        } catch {
           console.error("Failed to parse signed_payload for features")
         }
       }
