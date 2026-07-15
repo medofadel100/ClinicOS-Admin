@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChangePlanForm } from "./_components/change-plan-form";
 import { ClinicStatusActions } from "./_components/clinic-status-actions";
+import { LicenseManager } from "./_components/license-manager";
 
 export default async function ClinicDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -17,7 +18,8 @@ export default async function ClinicDetailPage({ params }: { params: { id: strin
     { data: overrides },
     { data: features },
     entitlements,
-    { data: payments }
+    { data: payments },
+    { data: license }
   ] = await Promise.all([
     supabase.from("clinics").select("*, clinic_types(name_en)").eq("id", params.id).single(),
     supabase.from("clinic_subscriptions").select("*, plans(name_en)").eq("clinic_id", params.id).order("created_at", { ascending: false }),
@@ -25,7 +27,8 @@ export default async function ClinicDetailPage({ params }: { params: { id: strin
     supabase.from("account_feature_overrides").select("*, features(name_en), platform_admins(full_name)").eq("clinic_id", params.id).order("created_at", { ascending: false }),
     supabase.from("features").select("id, name_en, base_price_egp").eq("is_active", true).order("name_en", { ascending: true }),
     getClinicEntitlements(params.id),
-    supabase.from("payments").select("*, platform_admins(full_name)").eq("clinic_id", params.id).order("paid_at", { ascending: false })
+    supabase.from("payments").select("*, platform_admins(full_name)").eq("clinic_id", params.id).order("paid_at", { ascending: false }),
+    supabase.from("clinic_licenses").select("*, license_activations(*)").eq("clinic_id", params.id).single()
   ]);
 
   if (!clinic) return notFound();
@@ -397,6 +400,9 @@ export default async function ClinicDetailPage({ params }: { params: { id: strin
           </tbody>
         </table>
       </div>
+
+      {/* License Manager */}
+      <LicenseManager clinicId={params.id} license={license as any} />
     </div>
   );
 }

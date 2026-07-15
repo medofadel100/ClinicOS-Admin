@@ -5,6 +5,7 @@ import { Bell } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { markNotificationRead } from "@/app/actions/notifications";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/lib/i18n/context";
 
 type NotificationRecipient = {
   id: string;
@@ -24,6 +25,7 @@ export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -111,17 +113,17 @@ export function NotificationBell() {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden z-50">
           <div className="p-3 border-b border-slate-100 font-semibold text-sm flex justify-between items-center">
-            Notifications
+            {t("notifications") || "Notifications"}
             {unreadCount > 0 && (
               <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
-                {unreadCount} unread
+                {unreadCount} {t("unread") || "unread"}
               </span>
             )}
           </div>
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="p-4 text-center text-sm text-slate-500">
-                No notifications yet.
+                {t("noNotifications") || "No notifications yet."}
               </div>
             ) : (
               <div className="flex flex-col">
@@ -157,7 +159,7 @@ export function NotificationBell() {
               onClick={() => { setIsOpen(true); }}
               className="text-xs font-medium text-blue-600 hover:text-blue-800"
             >
-              Refresh to see new
+              {t("refreshNew") || "Refresh to see new"}
             </button>
           </div>
         </div>

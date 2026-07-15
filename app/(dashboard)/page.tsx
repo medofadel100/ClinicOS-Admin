@@ -30,9 +30,9 @@ export default async function DashboardHomePage() {
     supabase.from("payments").select("amount_egp").eq("status", "confirmed"),
     supabase
       .from("clinic_subscriptions")
-      .select("id, clinic_id, status, trial_ends_at, current_period_end, clinics(name, owner_email)")
-      .in("status", ["active", "trial"])
-      .or(`trial_ends_at.lte.${nextWeek},current_period_end.lte.${nextWeek}`)
+      .select("id, clinic_id, status, trial_ends_at, current_period_end, pending_confirmation_expires_at, clinics(name, owner_email)")
+      .in("status", ["active", "trial", "pending_confirmation"])
+      .or(`trial_ends_at.lte.${nextWeek},current_period_end.lte.${nextWeek},pending_confirmation_expires_at.lte.${nextWeek}`)
       .order("current_period_end", { ascending: true }),
     supabase
       .from("clinics")
@@ -82,14 +82,14 @@ export default async function DashboardHomePage() {
               </div>
               <ul className="text-sm text-amber-900 space-y-1">
                 {expiringSubscriptions.map(sub => {
-                  const dateToUse = sub.status === 'trial' ? sub.trial_ends_at : sub.current_period_end;
+                  const dateToUse = sub.status === 'trial' ? sub.trial_ends_at : sub.status === 'pending_confirmation' ? sub.pending_confirmation_expires_at : sub.current_period_end;
                   const dateStr = dateToUse ? new Date(dateToUse).toLocaleDateString() : 'Unknown';
                   return (
                     <li key={sub.id}>
                       <Link href={`/clinics/${sub.clinic_id}`} className="hover:underline font-medium">
                         {(sub.clinics as unknown as { name: string; owner_email: string })?.name}
                       </Link>
-                      {' '}({(sub.clinics as unknown as { name: string; owner_email: string })?.owner_email}) - {sub.status === 'trial' ? 'Trial' : 'Subscription'} ends on {dateStr}.
+                      {' '}({(sub.clinics as unknown as { name: string; owner_email: string })?.owner_email}) - {sub.status === 'trial' ? 'Trial' : sub.status === 'pending_confirmation' ? 'Pending Confirmation' : 'Subscription'} ends on {dateStr}.
                     </li>
                   );
                 })}

@@ -49,6 +49,9 @@ export default function DashboardLayout({
           <Link href="/announcements" className="px-3 py-2 rounded-md hover:bg-slate-800 transition-colors">
             {t("announcements") || "Announcements"}
           </Link>
+          <Link href="/notifications" className="px-3 py-2 rounded-md hover:bg-slate-800 transition-colors">
+            {t("notifications") || "Notifications"}
+          </Link>
           <Link href="/payments" className="px-3 py-2 rounded-md hover:bg-slate-800 transition-colors">
             {t("payments") || "Payments"}
           </Link>

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { issueOrUpdateLicense } from "@/lib/license";
 
 export async function createClinic(formData: FormData) {
   const supabase = createClient();
@@ -109,6 +110,13 @@ export async function createClinic(formData: FormData) {
     await supabase.rpc("increment_discount_usage", { code_id: discount_code_id });
   }
 
+  // 5. Auto-issue license
+  try {
+    await issueOrUpdateLicense(clinic.id, currentPeriodEnd);
+  } catch (err) {
+    console.error("Failed to auto-issue license during clinic creation", err);
+  }
+
   revalidatePath("/clinics");
   return { success: true, clinicId: clinic.id };
 }
@@ -198,6 +206,13 @@ export async function changeClinicPlan(clinicId: string, newPlanId: string, disc
     .from("clinics")
     .update({ status: "active" })
     .eq("id", clinicId);
+
+  // 5. Auto-update license with new period
+  try {
+    await issueOrUpdateLicense(clinicId, currentPeriodEnd);
+  } catch (err) {
+    console.error("Failed to auto-update license during plan change", err);
+  }
 
   revalidatePath(`/clinics/${clinicId}`);
   revalidatePath("/clinics");
