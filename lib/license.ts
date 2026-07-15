@@ -24,10 +24,7 @@ export async function issueOrUpdateLicense(clinicId: string, expiresAt: Date) {
   const payloadString = JSON.stringify(payloadData);
 
   // 3. Sign the payload
-  const sign = crypto.createSign("ed25519");
-  sign.update(payloadString);
-  sign.end();
-  const signature = sign.sign(privateKeyPem, "base64");
+  const signature = crypto.sign(null, Buffer.from(payloadString), privateKeyPem).toString("base64");
   const payloadBase64 = Buffer.from(payloadString).toString("base64");
   const signedPayload = `${payloadBase64}.${signature}`;
 
