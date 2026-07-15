@@ -42,6 +42,7 @@ export async function revokeLicense(id: string) {
     .eq("id", id)
     .single();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const license = licenseData as any;
   if (fetchError || !license) throw new Error("License not found");
 
@@ -74,6 +75,7 @@ export async function approvePayment(id: string, newExpiresAt?: string) {
     .eq("id", id)
     .single();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const license = licenseData as any;
   if (fetchError || !license) throw new Error("License not found");
   if (license.status !== "trial") throw new Error("License is not in trial status");
@@ -111,6 +113,7 @@ export async function updateSerial(id: string, newSerial: string) {
     .eq("id", id)
     .single();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const license = licenseData as any;
   if (fetchError || !license) throw new Error("License not found");
 
