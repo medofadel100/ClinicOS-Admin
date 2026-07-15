@@ -128,7 +128,8 @@ export async function createLicense(clinicId: string, serialCode: string, expire
 
   const { error } = await supabase
     .from("clinic_licenses")
-    .insert(newLicense);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .insert(newLicense as any);
 
   if (error) {
     console.error("DB Error creating license:", error);
