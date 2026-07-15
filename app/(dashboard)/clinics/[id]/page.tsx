@@ -402,6 +402,7 @@ export default async function ClinicDetailPage({ params }: { params: { id: strin
       </div>
 
       {/* License Manager */}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <LicenseManager clinicId={params.id} license={license as any} />
     </div>
   );

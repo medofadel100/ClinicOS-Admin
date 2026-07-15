@@ -41,7 +41,7 @@ export function LicenseManager({ clinicId, license }: { clinicId: string, licens
     );
   }
 
-  const handleAction = (action: (clinicId: string) => Promise<any>) => {
+  const handleAction = (action: (clinicId: string) => Promise<unknown>) => {
     if (confirm("Are you sure you want to perform this action?")) {
       startTransition(() => {
         action(clinicId);
