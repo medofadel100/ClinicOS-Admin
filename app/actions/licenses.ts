@@ -122,7 +122,7 @@ export async function createLicense(clinicId: string, serialCode: string, expire
     serial_code: serialCode,
     signed_payload: signedPayload,
     license_version: 1,
-    status: "active",
+    status: "active" as const,
     expires_at: expiresAt || null,
   };
 
