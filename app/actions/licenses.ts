@@ -46,11 +46,12 @@ export async function revokeLicense(id: string) {
 
   const { error } = await supabase
     .from("clinic_licenses")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .update({
       status: "revoked",
       license_version: license.license_version + 1,
       updated_at: new Date().toISOString(),
-    })
+    } as any)
     .eq("id", id);
 
   if (error) throw new Error(error.message);
@@ -85,7 +86,8 @@ export async function approvePayment(id: string, newExpiresAt?: string) {
 
   const { error } = await supabase
     .from("clinic_licenses")
-    .update(updates)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .update(updates as any)
     .eq("id", id);
 
   if (error) throw new Error(error.message);
@@ -129,12 +131,13 @@ export async function updateSerial(id: string, newSerial: string) {
 
   const { error } = await supabase
     .from("clinic_licenses")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .update({
       serial_code: newSerial,
       signed_payload: signedPayload,
       license_version: newVersion,
       updated_at: new Date().toISOString(),
-    })
+    } as any)
     .eq("id", id);
 
   if (error) throw new Error(error.message);
