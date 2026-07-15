@@ -36,12 +36,13 @@ export async function revokeLicense(id: string) {
   const supabase = createClient();
 
   // Fetch current version
-  const { data: license, error: fetchError } = await supabase
+  const { data: licenseData, error: fetchError } = await supabase
     .from("clinic_licenses")
     .select("license_version")
     .eq("id", id)
     .single();
 
+  const license = licenseData as any;
   if (fetchError || !license) throw new Error("License not found");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -67,12 +68,13 @@ export async function revokeLicense(id: string) {
 export async function approvePayment(id: string, newExpiresAt?: string) {
   const supabase = createClient();
 
-  const { data: license, error: fetchError } = await supabase
+  const { data: licenseData, error: fetchError } = await supabase
     .from("clinic_licenses")
     .select("license_version, status")
     .eq("id", id)
     .single();
 
+  const license = licenseData as any;
   if (fetchError || !license) throw new Error("License not found");
   if (license.status !== "trial") throw new Error("License is not in trial status");
 
@@ -103,12 +105,13 @@ export async function approvePayment(id: string, newExpiresAt?: string) {
 export async function updateSerial(id: string, newSerial: string) {
   const supabase = createClient();
 
-  const { data: license, error: fetchError } = await supabase
+  const { data: licenseData, error: fetchError } = await supabase
     .from("clinic_licenses")
     .select("license_version, clinic_id, expires_at, signed_payload")
     .eq("id", id)
     .single();
 
+  const license = licenseData as any;
   if (fetchError || !license) throw new Error("License not found");
 
   // We need to parse the existing payload to keep its features, or generate a new basic payload
