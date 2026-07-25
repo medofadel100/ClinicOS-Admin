@@ -15,7 +15,7 @@ BEGIN
 
     -- Upsert into platform_admins
     INSERT INTO public.platform_admins (auth_user_id, full_name, role, preferred_language, is_active)
-    VALUES (target_user_id, 'Ahmed (medofadel100)', 'super_admin', 'ar', true)
+    VALUES (target_user_id, 'Ahmed Fadel', 'super_admin', 'ar', true)
     ON CONFLICT (auth_user_id) DO UPDATE SET
       role = 'super_admin',
       is_active = true;

@@ -52,7 +52,7 @@ async function main() {
   console.log("Upserting into platform_admins...");
   const { error: adminError } = await supabase.from("platform_admins").upsert({
     auth_user_id: userId,
-    full_name: "Ahmed (medofadel100)",
+    full_name: "Ahmed Fadel",
     role: "super_admin",
     preferred_language: "ar",
     is_active: true,

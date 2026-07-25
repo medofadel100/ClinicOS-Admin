@@ -40,7 +40,7 @@ export default async function PlanDetailPage({ params }: { params: { id: string 
               <li key={limit.id} className="flex justify-between items-center bg-slate-50 p-2 rounded-md border border-slate-100">
                 <div>
                   <span className="capitalize font-medium block">{limit.limit_type.replace('_', ' ')}</span>
-                  <span className="text-sm text-slate-600">{limit.max_value === null ? 'Unlimited' : limit.max_value}</span>
+                  <span className="text-sm text-slate-600">{limit.max_value === null ? 'Unlimited' : limit.limit_type === 'storage_mb' ? (limit.max_value / 1024) + ' GB' : limit.max_value}</span>
                 </div>
                 <form action={async () => { "use server"; await removePlanLimit(limit.id, plan.id); }}>
                   <button className="text-red-600 text-sm hover:underline">Remove</button>
@@ -59,6 +59,7 @@ export default async function PlanDetailPage({ params }: { params: { id: string 
                 <option value="provider_seats">Provider Seats</option>
                 <option value="patients">Patients</option>
                 <option value="staff_accounts">Staff Accounts</option>
+                <option value="storage_mb">Storage (MB)</option>
               </select>
             </div>
             <div className="flex flex-col gap-1">

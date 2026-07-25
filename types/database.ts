@@ -178,19 +178,19 @@ export interface Database {
         Row: {
           id: string;
           plan_id: string;
-          limit_type: "provider_seats" | "patients" | "staff_accounts";
+          limit_type: "provider_seats" | "patients" | "staff_accounts" | "storage_mb";
           max_value: number | null;
         };
         Insert: {
           id?: string;
           plan_id: string;
-          limit_type: "provider_seats" | "patients" | "staff_accounts";
+          limit_type: "provider_seats" | "patients" | "staff_accounts" | "storage_mb";
           max_value?: number | null;
         };
         Update: {
           id?: string;
           plan_id?: string;
-          limit_type?: "provider_seats" | "patients" | "staff_accounts";
+          limit_type?: "provider_seats" | "patients" | "staff_accounts" | "storage_mb";
           max_value?: number | null;
         };
         Relationships: [
@@ -874,6 +874,85 @@ export interface Database {
           }
         ];
       };
+      clinic_settings: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          setting_key: string;
+          setting_value: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          setting_key: string;
+          setting_value: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          setting_key?: string;
+          setting_value?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "clinic_settings_clinic_id_fkey";
+            columns: ["clinic_id"];
+            isOneToOne: false;
+            referencedRelation: "clinics";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      patient_uploaded_files: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          patient_id: string | null;
+          file_name: string;
+          file_size: number;
+          category: string | null;
+          storage_provider: string | null;
+          storage_path: string | null;
+          mime_type: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          patient_id?: string | null;
+          file_name: string;
+          file_size: number;
+          category?: string | null;
+          storage_provider?: string | null;
+          storage_path?: string | null;
+          mime_type?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          patient_id?: string | null;
+          file_name?: string;
+          file_size?: number;
+          category?: string | null;
+          storage_provider?: string | null;
+          storage_path?: string | null;
+          mime_type?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "patient_uploaded_files_clinic_id_fkey";
+            columns: ["clinic_id"];
+            isOneToOne: false;
+            referencedRelation: "clinics";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -890,7 +969,7 @@ export interface Database {
       admin_role: "super_admin" | "accountant" | "support";
       language_pref: "ar" | "en";
       billing_cycle: "monthly" | "yearly";
-      plan_limit_type: "provider_seats" | "patients" | "staff_accounts";
+      plan_limit_type: "provider_seats" | "patients" | "staff_accounts" | "storage_mb";
       clinic_status: "trial" | "active" | "past_due" | "suspended" | "cancelled";
       subscription_status: "trial" | "active" | "past_due" | "cancelled" | "pending_confirmation";
       override_type: "grant" | "revoke";

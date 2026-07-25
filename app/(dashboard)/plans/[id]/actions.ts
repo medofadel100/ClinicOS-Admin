@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 export async function addPlanLimit(formData: FormData) {
   "use server";
   const plan_id = formData.get("plan_id") as string;
-  const limit_type = formData.get("limit_type") as "provider_seats" | "patients" | "staff_accounts";
+  const limit_type = formData.get("limit_type") as "provider_seats" | "patients" | "staff_accounts" | "storage_mb";
   const max_value = formData.get("max_value") ? parseInt(formData.get("max_value") as string) : null;
   
   const supabase = createClient();
