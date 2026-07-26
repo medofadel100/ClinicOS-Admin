@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import { CreateAnnouncementForm } from "./_components/create-form";
+import { CreateAnnouncementClient } from "./_components/create-announcement-client";
 
 export default async function CreateAnnouncementPage() {
   const supabase = createClient();
@@ -22,19 +22,7 @@ export default async function CreateAnnouncementPage() {
     );
   }
 
-  // Fetch plans for filtering
   const { data: plans } = await supabase.from("plans").select("id, name_en");
 
-  return (
-    <div className="max-w-3xl mx-auto flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold mb-1">New Announcement</h1>
-        <p className="text-slate-600">Send an email or WhatsApp message to clinic owners.</p>
-      </div>
-
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-        <CreateAnnouncementForm plans={plans || []} />
-      </div>
-    </div>
-  );
+  return <CreateAnnouncementClient plans={plans || []} />;
 }

@@ -3,9 +3,11 @@
 import { useTransition } from "react";
 import { toggleDiscountCodeActive } from "@/app/actions/discounts";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n/context";
 
 export function DiscountToggle({ id, isActive }: { id: string; isActive: boolean }) {
   const [isPending, startTransition] = useTransition();
+  const { t } = useLanguage();
 
   const handleToggle = () => {
     startTransition(async () => {
@@ -20,7 +22,7 @@ export function DiscountToggle({ id, isActive }: { id: string; isActive: boolean
       onClick={handleToggle}
       disabled={isPending}
     >
-      {isPending ? "..." : isActive ? "Deactivate" : "Activate"}
+      {isPending ? "..." : isActive ? t("deactivate") : t("activate")}
     </Button>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { generateOfflineLicense } from "@/app/actions/licenses"
 import { Button } from "@/components/ui/button"
 import toast from "react-hot-toast"
+import { useLanguage } from "@/lib/i18n/context"
 
 const AVAILABLE_FEATURES = [
   'appointment_booking',
@@ -20,6 +21,7 @@ export default function OfflineGeneratorModal() {
   const [expiresAt, setExpiresAt] = useState("")
   const [features, setFeatures] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const { t } = useLanguage()
 
   const toggleFeature = (feature: string) => {
     setFeatures(prev => 
@@ -36,7 +38,6 @@ export default function OfflineGeneratorModal() {
 
     setIsLoading(true)
     try {
-      // Must be formatted to ISO or valid date string for the payload
       const dateIso = new Date(expiresAt).toISOString()
       const fileContent = await generateOfflineLicense(clinicId, features, dateIso)
       
@@ -52,7 +53,6 @@ export default function OfflineGeneratorModal() {
 
       toast.success("Offline license generated and downloaded!")
       setIsOpen(false)
-      // reset form
       setClinicId("")
       setExpiresAt("")
       setFeatures([])
@@ -66,20 +66,20 @@ export default function OfflineGeneratorModal() {
   return (
     <>
       <Button onClick={() => setIsOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
-        Generate Offline License
+        {t("downloadFile")}
       </Button>
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border dark:border-slate-800">
             <div className="p-6 border-b dark:border-slate-800">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Offline License Generator</h3>
-              <p className="text-sm text-slate-500 mt-1">Create a .clinicos file for fully offline deployments.</p>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t("offlineLicense")}</h3>
+              <p className="text-sm text-slate-500 mt-1">{t("offlineDesc")}</p>
             </div>
             
             <form onSubmit={handleGenerate} className="p-6 space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Clinic ID (UUID)</label>
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t("clinicID")}</label>
                 <input 
                   type="text" 
                   value={clinicId} 
@@ -91,7 +91,7 @@ export default function OfflineGeneratorModal() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Expiration Date</label>
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t("expirationDate")}</label>
                 <input 
                   type="date" 
                   value={expiresAt} 
@@ -102,7 +102,7 @@ export default function OfflineGeneratorModal() {
               </div>
 
               <div className="space-y-3 pt-2">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Enabled Features</label>
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t("enabledFeatures")}</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {AVAILABLE_FEATURES.map(feature => (
                     <label key={feature} className="flex items-center space-x-2 cursor-pointer group">
@@ -128,10 +128,10 @@ export default function OfflineGeneratorModal() {
 
               <div className="pt-6 flex items-center justify-end space-x-3">
                 <Button type="button" variant="ghost" onClick={() => setIsOpen(false)}>
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 text-white min-w-[120px]">
-                  {isLoading ? "Generating..." : "Download File"}
+                  {isLoading ? t("generating") : t("downloadFile")}
                 </Button>
               </div>
             </form>

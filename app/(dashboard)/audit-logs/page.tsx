@@ -3,6 +3,7 @@ import { getAuditLogs, getAdminsForFilter } from "@/app/actions/audit";
 import { AuditLogTable } from "./_components/audit-log-table";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { AuditLogsClient } from "./_components/audit-logs-client";
 
 export const metadata: Metadata = {
   title: "Audit Logs - ClinicOS",
@@ -37,16 +38,13 @@ export default async function AuditLogsPage({
   ]);
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Audit Logs</h2>
-      </div>
+    <AuditLogsClient>
       <AuditLogTable 
         logs={logsResponse.data || []} 
         totalPages={logsResponse.totalPages} 
         currentPage={page} 
         admins={admins || []}
       />
-    </div>
+    </AuditLogsClient>
   );
 }

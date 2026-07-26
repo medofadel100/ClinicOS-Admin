@@ -17,18 +17,18 @@ export default function IncreaseStorageModal({
   const { t, language } = useLanguage();
   const [selected, setSelected] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   async function handleConfirm() {
     if (!selected) return;
     setLoading(true);
-    setError(null);
+    setErrorCode(null);
 
     const result = await increaseClinicStorage(clinic.clinic_id, selected);
 
     if (result.error) {
-      setError(result.error);
+      setErrorCode(result.error);
       setLoading(false);
     } else {
       setSuccess(true);
@@ -108,7 +108,8 @@ export default function IncreaseStorageModal({
               })}
             </div>
 
-            {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {errorCode && <p className="text-sm text-red-600 mb-4">{t(errorCode as any)}</p>}
 
             <div className="flex gap-3">
               <button

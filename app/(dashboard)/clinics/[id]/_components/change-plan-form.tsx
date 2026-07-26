@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { changeClinicPlan } from "../../actions";
+import { useLanguage } from "@/lib/i18n/context";
 
 export function ChangePlanForm({
   clinicId,
@@ -12,6 +13,7 @@ export function ChangePlanForm({
   plans: { id: string; name_en: string; price_egp: number }[];
   currentPlanId: string;
 }) {
+  const { t } = useLanguage();
   const [isPending, startTransition] = useTransition();
   const [discountCode, setDiscountCode] = useState("");
   const [error, setError] = useState("");
@@ -53,7 +55,7 @@ export function ChangePlanForm({
       <input
         type="text"
         name="discount_code"
-        placeholder="Discount Code (Optional)"
+        placeholder={`${t("discountCode")} (${t("optional")})`}
         value={discountCode}
         onChange={(e) => setDiscountCode(e.target.value)}
         className="border border-slate-300 rounded-md px-3 py-2 outline-none text-sm uppercase"
@@ -64,11 +66,8 @@ export function ChangePlanForm({
         disabled={isPending}
         className="bg-indigo-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
       >
-        {isPending ? "Updating..." : "Update Plan"}
+        {isPending ? t("saving") : t("changePlan")}
       </button>
-      <p className="text-xs text-slate-500 mt-1">
-        This will cancel the current subscription and start a new one.
-      </p>
     </form>
   );
 }

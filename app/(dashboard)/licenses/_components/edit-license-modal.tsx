@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { updateLicense } from "@/app/actions/licenses"
 import { Button } from "@/components/ui/button"
 import toast from "react-hot-toast"
+import { useLanguage } from "@/lib/i18n/context"
 
 const AVAILABLE_FEATURES = [
   'appointment_booking',
@@ -35,6 +36,7 @@ export default function EditLicenseModal({
   const [expiresAt, setExpiresAt] = useState("")
   const [features, setFeatures] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const { t } = useLanguage()
 
   useEffect(() => {
     if (license && isOpen) {
@@ -47,7 +49,6 @@ export default function EditLicenseModal({
         setExpiresAt("")
       }
 
-      // Extract existing features if possible
       let initialFeatures: string[] = []
       if (license.signed_payload) {
         try {
@@ -102,15 +103,15 @@ export default function EditLicenseModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border dark:border-slate-800">
         <div className="p-6 border-b dark:border-slate-800">
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Edit License</h3>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t("editLicense")}</h3>
           <p className="text-sm text-slate-500 mt-1">Update license payload and serial code.</p>
         </div>
         
         <form onSubmit={handleSave} className="p-6 space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex justify-between">
-              <span>Serial Code</span>
-              <button type="button" onClick={handleGenerateCode} className="text-blue-600 hover:underline text-xs">Generate</button>
+              <span>{t("serialCode")}</span>
+              <button type="button" onClick={handleGenerateCode} className="text-blue-600 hover:underline text-xs">{t("generate")}</button>
             </label>
             <input 
               type="text" 
@@ -123,7 +124,7 @@ export default function EditLicenseModal({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Expiration Date</label>
+            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t("expirationDate")}</label>
             <input 
               type="date" 
               value={expiresAt} 
@@ -134,7 +135,7 @@ export default function EditLicenseModal({
           </div>
 
           <div className="space-y-3 pt-2">
-            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Enabled Features</label>
+            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t("enabledFeatures")}</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-1">
               {AVAILABLE_FEATURES.map(feature => (
                 <label key={feature} className="flex items-center space-x-2 cursor-pointer group">
@@ -160,10 +161,10 @@ export default function EditLicenseModal({
 
           <div className="pt-6 flex items-center justify-end space-x-3">
             <Button type="button" variant="ghost" onClick={onClose}>
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 text-white min-w-[120px]">
-              {isLoading ? "Saving..." : "Save License"}
+              {isLoading ? t("saving") : t("saveBtn")}
             </Button>
           </div>
         </form>

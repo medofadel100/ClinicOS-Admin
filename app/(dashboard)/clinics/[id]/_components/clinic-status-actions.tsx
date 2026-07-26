@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { suspendClinic, cancelClinic, reactivateClinic } from "../../actions-status";
+import { useLanguage } from "@/lib/i18n/context";
 
 export function ClinicStatusActions({ clinicId, currentStatus }: { clinicId: string, currentStatus: string }) {
+  const { t } = useLanguage();
   const [isConfirming, setIsConfirming] = useState<"suspend" | "cancel" | "reactivate" | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -28,21 +30,21 @@ export function ClinicStatusActions({ clinicId, currentStatus }: { clinicId: str
     return (
       <div className="flex items-center gap-2 bg-yellow-50 p-2 rounded-md border border-yellow-200 text-sm">
         <span className="font-medium text-yellow-800">
-          Confirm {isConfirming}?
+          {t("confirm")} {isConfirming}?
         </span>
         <button 
           onClick={handleAction} 
           disabled={loading}
           className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 disabled:opacity-50"
         >
-          {loading ? "..." : "Yes"}
+          {loading ? "..." : t("ok")}
         </button>
         <button 
           onClick={() => setIsConfirming(null)} 
           disabled={loading}
           className="text-slate-600 px-2 py-1 rounded hover:bg-slate-200 disabled:opacity-50"
         >
-          No
+          {t("cancel")}
         </button>
       </div>
     );
@@ -56,13 +58,13 @@ export function ClinicStatusActions({ clinicId, currentStatus }: { clinicId: str
             onClick={() => setIsConfirming("suspend")}
             className="text-sm font-medium text-amber-600 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-md transition-colors"
           >
-            Suspend
+            {t("suspendLicense")}
           </button>
           <button 
             onClick={() => setIsConfirming("cancel")}
             className="text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md transition-colors"
           >
-            Cancel Clinic
+            {t("cancel")}
           </button>
         </>
       )}
@@ -72,19 +74,19 @@ export function ClinicStatusActions({ clinicId, currentStatus }: { clinicId: str
             onClick={() => setIsConfirming("reactivate")}
             className="text-sm font-medium text-green-600 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-md transition-colors"
           >
-            Reactivate
+            {t("activate")}
           </button>
           <button 
             onClick={() => setIsConfirming("cancel")}
             className="text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md transition-colors"
           >
-            Cancel Clinic
+            {t("cancel")}
           </button>
         </>
       )}
       {currentStatus === "cancelled" && (
         <span className="text-sm text-slate-500 italic">
-          To reactivate a cancelled clinic, please create a new subscription.
+          {t("noActiveSubscription")}
         </span>
       )}
     </div>

@@ -150,7 +150,7 @@ export async function increaseClinicStorage(
   const supabase = createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated" };
+  if (!user) return { error: "errorNotAuthenticated" };
 
   const { data: adminRecord } = await supabase
     .from("platform_admins")
@@ -158,16 +158,15 @@ export async function increaseClinicStorage(
     .eq("auth_user_id", user.id)
     .single();
 
-  if (!adminRecord) return { error: "Not a platform admin" };
+  if (!adminRecord) return { error: "errorNotAdmin" };
 
-  // Check for duplicate grant
   const { data: existingFeature } = await supabase
     .from("features")
     .select("id")
     .eq("code", featureCode)
     .single();
 
-  if (!existingFeature) return { error: "Feature not found" };
+  if (!existingFeature) return { error: "errorFeatureNotFound" };
 
   const { data: existingOverride } = await supabase
     .from("account_feature_overrides")
@@ -178,7 +177,7 @@ export async function increaseClinicStorage(
     .maybeSingle();
 
   if (existingOverride) {
-    return { error: "This storage add-on is already granted to this clinic." };
+    return { error: "errorDuplicateGrant" };
   }
 
   // Get feature price for the override
@@ -261,7 +260,7 @@ export async function removeStorageFeature(
   const supabase = createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated" };
+  if (!user) return { error: "errorNotAuthenticated" };
 
   const { error: deleteErr } = await supabase
     .from("account_feature_overrides")

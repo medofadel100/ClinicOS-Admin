@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useLanguage } from "@/lib/i18n/context";
 
 export function AuditLogTable({
   logs,
@@ -34,6 +35,7 @@ export function AuditLogTable({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
 
   const handleFilter = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -60,13 +62,13 @@ export function AuditLogTable({
           onValueChange={(val) => handleFilter("target_table", val)}
         >
           <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Filter by table" />
+            <SelectValue placeholder={t("filterByTable")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Tables</SelectItem>
-            <SelectItem value="clinic_subscriptions">Subscriptions</SelectItem>
-            <SelectItem value="payments">Payments</SelectItem>
-            <SelectItem value="account_feature_overrides">Overrides</SelectItem>
+            <SelectItem value="all">{t("allTables")}</SelectItem>
+            <SelectItem value="clinic_subscriptions">{t("subscriptions")}</SelectItem>
+            <SelectItem value="payments">{t("payments")}</SelectItem>
+            <SelectItem value="account_feature_overrides">{t("overrides")}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -75,10 +77,10 @@ export function AuditLogTable({
           onValueChange={(val) => handleFilter("actor_admin_id", val)}
         >
           <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Filter by admin" />
+            <SelectValue placeholder={t("filterByAdmin")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Admins</SelectItem>
+            <SelectItem value="all">{t("allAdmins")}</SelectItem>
             {admins.map((a) => (
               <SelectItem key={a.id} value={a.id}>
                 {a.full_name}
@@ -92,18 +94,18 @@ export function AuditLogTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Actor</TableHead>
-              <TableHead>Action</TableHead>
-              <TableHead>Target</TableHead>
-              <TableHead>Details</TableHead>
+              <TableHead>{t("date")}</TableHead>
+              <TableHead>{t("actor")}</TableHead>
+              <TableHead>{t("action")}</TableHead>
+              <TableHead>{t("target")}</TableHead>
+              <TableHead>{t("details")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {logs.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-8">
-                  No audit logs found.
+                  {t("noAuditLogs")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -113,7 +115,7 @@ export function AuditLogTable({
                     {format(new Date(log.created_at), "PP p")}
                   </TableCell>
                   <TableCell>
-                    {log.platform_admins?.full_name || "System"}
+                    {log.platform_admins?.full_name || t("system")}
                   </TableCell>
                   <TableCell className="font-medium">{log.action}</TableCell>
                   <TableCell>
@@ -123,21 +125,21 @@ export function AuditLogTable({
                   <TableCell>
                     <Dialog>
                       <DialogTrigger className="text-sm font-medium text-indigo-600 hover:underline">
-                        View
+                        {t("viewDetails")}
                       </DialogTrigger>
                       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
-                          <DialogTitle>Audit Log Details</DialogTitle>
+                          <DialogTitle>{t("auditLogDetails")}</DialogTitle>
                         </DialogHeader>
                         <div className="grid grid-cols-2 gap-4 mt-4">
                           <div>
-                            <h4 className="text-sm font-semibold mb-2">Old Value</h4>
+                            <h4 className="text-sm font-semibold mb-2">{t("oldValue")}</h4>
                             <pre className="bg-muted p-4 rounded-md text-xs overflow-auto whitespace-pre-wrap">
                               {log.old_value ? JSON.stringify(log.old_value, null, 2) : "null"}
                             </pre>
                           </div>
                           <div>
-                            <h4 className="text-sm font-semibold mb-2">New Value</h4>
+                            <h4 className="text-sm font-semibold mb-2">{t("newValue")}</h4>
                             <pre className="bg-muted p-4 rounded-md text-xs overflow-auto whitespace-pre-wrap">
                               {log.new_value ? JSON.stringify(log.new_value, null, 2) : "null"}
                             </pre>
@@ -161,10 +163,10 @@ export function AuditLogTable({
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage <= 1}
           >
-            Previous
+            {t("previous")}
           </Button>
           <div className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages}
+            {t("pageOf")} {currentPage} of {totalPages}
           </div>
           <Button
             variant="outline"
@@ -172,7 +174,7 @@ export function AuditLogTable({
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
           >
-            Next
+            {t("next")}
           </Button>
         </div>
       )}

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { createLicense } from "@/app/actions/licenses"
 import { Button } from "@/components/ui/button"
 import toast from "react-hot-toast"
+import { useLanguage } from "@/lib/i18n/context"
 
 const AVAILABLE_FEATURES = [
   'appointment_booking',
@@ -26,6 +27,7 @@ export default function CreateLicenseModal({ clinics }: { clinics: Clinic[] }) {
   const [expiresAt, setExpiresAt] = useState("")
   const [features, setFeatures] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const { t } = useLanguage()
 
   const toggleFeature = (feature: string) => {
     setFeatures(prev => 
@@ -52,7 +54,6 @@ export default function CreateLicenseModal({ clinics }: { clinics: Clinic[] }) {
       
       toast.success("License created successfully!")
       setIsOpen(false)
-      // reset form
       setClinicId("")
       setSerialCode("")
       setExpiresAt("")
@@ -67,14 +68,14 @@ export default function CreateLicenseModal({ clinics }: { clinics: Clinic[] }) {
   return (
     <>
       <Button onClick={() => setIsOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-sm">
-        + Create New License
+        + {t("createLicenseBtn")}
       </Button>
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border dark:border-slate-800">
             <div className="p-6 border-b dark:border-slate-800">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Create New License</h3>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t("createLicense")}</h3>
               <p className="text-sm text-slate-500 mt-1">Generate a new license payload and serial code.</p>
             </div>
             
@@ -96,8 +97,8 @@ export default function CreateLicenseModal({ clinics }: { clinics: Clinic[] }) {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex justify-between">
-                  <span>Serial Code</span>
-                  <button type="button" onClick={handleGenerateCode} className="text-blue-600 hover:underline text-xs">Generate</button>
+                  <span>{t("serialCode")}</span>
+                  <button type="button" onClick={handleGenerateCode} className="text-blue-600 hover:underline text-xs">{t("generate")}</button>
                 </label>
                 <input 
                   type="text" 
@@ -110,7 +111,7 @@ export default function CreateLicenseModal({ clinics }: { clinics: Clinic[] }) {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Expiration Date</label>
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t("expirationDate")}</label>
                 <input 
                   type="date" 
                   value={expiresAt} 
@@ -121,7 +122,7 @@ export default function CreateLicenseModal({ clinics }: { clinics: Clinic[] }) {
               </div>
 
               <div className="space-y-3 pt-2">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Enabled Features</label>
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t("enabledFeatures")}</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-1">
                   {AVAILABLE_FEATURES.map(feature => (
                     <label key={feature} className="flex items-center space-x-2 cursor-pointer group">
@@ -147,10 +148,10 @@ export default function CreateLicenseModal({ clinics }: { clinics: Clinic[] }) {
 
               <div className="pt-6 flex items-center justify-end space-x-3">
                 <Button type="button" variant="ghost" onClick={() => setIsOpen(false)}>
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <Button type="submit" disabled={isLoading} className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-[120px]">
-                  {isLoading ? "Creating..." : "Create License"}
+                  {isLoading ? t("creating") : t("createLicenseBtn")}
                 </Button>
               </div>
             </form>

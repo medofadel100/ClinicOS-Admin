@@ -3,16 +3,18 @@
 import { useState } from "react";
 import { updateClinicType } from "../actions";
 import { useFormStatus } from "react-dom";
+import { useLanguage } from "@/lib/i18n/context";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
+  const { t } = useLanguage();
   return (
     <button 
       type="submit" 
       disabled={pending}
       className="bg-indigo-600 text-white px-2 py-1 rounded-md text-xs font-medium hover:bg-indigo-700 disabled:opacity-50"
     >
-      {pending ? "Saving..." : "Save"}
+      {pending ? t("saving") : t("save")}
     </button>
   );
 }
@@ -20,6 +22,7 @@ function SubmitButton() {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ClinicTypeRow({ type }: { type: any }) {
   const [isEditing, setIsEditing] = useState(false);
+  const { t } = useLanguage();
 
   if (isEditing) {
     return (
@@ -34,15 +37,15 @@ export function ClinicTypeRow({ type }: { type: any }) {
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-slate-500">Name (English)</label>
+                <label className="text-xs font-medium text-slate-500">{t("nameEnglish")}</label>
                 <input name="name_en" defaultValue={type.name_en} required className="border border-slate-300 rounded-md px-2 py-1 outline-none text-sm" />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-slate-500">Name (Arabic)</label>
+                <label className="text-xs font-medium text-slate-500">{t("nameArabic")}</label>
                 <input name="name_ar" defaultValue={type.name_ar} required className="border border-slate-300 rounded-md px-2 py-1 outline-none text-sm text-right" dir="rtl" />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-slate-500">Description</label>
+                <label className="text-xs font-medium text-slate-500">{t("description")}</label>
                 <input name="description" defaultValue={type.description || ''} className="border border-slate-300 rounded-md px-2 py-1 outline-none text-sm" />
               </div>
             </div>
@@ -50,7 +53,7 @@ export function ClinicTypeRow({ type }: { type: any }) {
             <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-200">
               <div className="flex items-center gap-2">
                 <input type="checkbox" id={`active-${type.id}`} name="is_active" value="true" defaultChecked={type.is_active} className="rounded" />
-                <label htmlFor={`active-${type.id}`} className="text-sm font-medium">Is Active</label>
+                <label htmlFor={`active-${type.id}`} className="text-sm font-medium">{t("isActive")}</label>
               </div>
               <div className="flex items-center gap-2">
                 <button 
@@ -58,7 +61,7 @@ export function ClinicTypeRow({ type }: { type: any }) {
                   onClick={() => setIsEditing(false)}
                   className="px-2 py-1 text-xs font-medium text-slate-600 hover:text-slate-900"
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
                 <SubmitButton />
               </div>
@@ -76,7 +79,7 @@ export function ClinicTypeRow({ type }: { type: any }) {
       <td className="px-6 py-4 text-slate-600">{type.name_ar}</td>
       <td className="px-6 py-4">
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${type.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-          {type.is_active ? "Active" : "Disabled"}
+          {type.is_active ? t("active") : t("disabled")}
         </span>
       </td>
       <td className="px-6 py-4 text-right">
@@ -84,7 +87,7 @@ export function ClinicTypeRow({ type }: { type: any }) {
           onClick={() => setIsEditing(true)}
           className="text-xs font-medium text-indigo-600 hover:text-indigo-800"
         >
-          Edit
+          {t("edit")}
         </button>
       </td>
     </tr>

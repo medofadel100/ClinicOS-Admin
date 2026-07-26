@@ -1,0 +1,71 @@
+"use client";
+
+import { useLanguage } from "@/lib/i18n/context";
+import { addPlan } from "../actions";
+import { PlanCard } from "./plan-card";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function PlansClient({ plans }: { plans: any[] }) {
+  const { t } = useLanguage();
+
+  return (
+    <div className="max-w-6xl mx-auto flex flex-col gap-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold mb-1">{t("subscriptionPlans")}</h1>
+          <p className="text-slate-600">{t("managePricing")}</p>
+        </div>
+        <form action="/plans/seed" method="POST">
+          <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded-md font-medium hover:bg-indigo-700 transition-colors">
+            {t("seedInitialData")}
+          </button>
+        </form>
+      </div>
+
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-4xl">
+        <h2 className="text-lg font-semibold mb-4">{t("addNewPlan")}</h2>
+        <form action={addPlan} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">{t("codeUnique")}</label>
+            <input name="code" required placeholder="e.g. basic" className="border border-slate-300 rounded-md px-3 py-2 outline-none" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">{t("nameEnglish")}</label>
+            <input name="name_en" required placeholder="Basic" className="border border-slate-300 rounded-md px-3 py-2 outline-none" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">{t("nameArabic")}</label>
+            <input name="name_ar" required placeholder="الأساسية" className="border border-slate-300 rounded-md px-3 py-2 outline-none text-right" dir="rtl" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">{t("priceEGP")}</label>
+            <input name="price_egp" type="number" required placeholder="0.00" step="0.01" className="border border-slate-300 rounded-md px-3 py-2 outline-none" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">{t("billingCycle")}</label>
+            <select name="billing_cycle" required className="border border-slate-300 rounded-md px-3 py-2 outline-none bg-white">
+              <option value="monthly">{t("monthly")}</option>
+              <option value="yearly">{t("yearly")}</option>
+            </select>
+          </div>
+          <div className="md:col-span-3 mt-2">
+            <button type="submit" className="bg-slate-900 text-white px-4 py-2 rounded-md font-medium hover:bg-slate-800">
+              {t("addPlanBtn")}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {plans?.map((plan) => (
+          <PlanCard key={plan.id} plan={plan} />
+        ))}
+        {!plans?.length && (
+          <div className="col-span-full bg-white p-12 text-center border border-slate-200 rounded-xl text-slate-500">
+            {t("noPlansFound")}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
