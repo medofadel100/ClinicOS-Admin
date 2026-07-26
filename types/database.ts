@@ -874,6 +874,61 @@ export interface Database {
           }
         ];
       };
+      clinic_serials: {
+        Row: {
+          id: string;
+          code: string;
+          plan_id: string;
+          status: "unused" | "used" | "cancelled";
+          clinic_id: string | null;
+          created_by: string;
+          used_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          plan_id: string;
+          status?: "unused" | "used" | "cancelled";
+          clinic_id?: string | null;
+          created_by: string;
+          used_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          plan_id?: string;
+          status?: "unused" | "used" | "cancelled";
+          clinic_id?: string | null;
+          created_by?: string;
+          used_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "clinic_serials_plan_id_fkey";
+            columns: ["plan_id"];
+            isOneToOne: false;
+            referencedRelation: "plans";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "clinic_serials_clinic_id_fkey";
+            columns: ["clinic_id"];
+            isOneToOne: false;
+            referencedRelation: "clinics";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "clinic_serials_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "platform_admins";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       clinic_settings: {
         Row: {
           id: string;
@@ -983,6 +1038,7 @@ export interface Database {
       announcement_status: "draft" | "scheduled" | "sending" | "sent" | "failed";
       delivery_status: "pending" | "sent" | "failed";
       notification_type: "manual_broadcast" | "system_event";
+      serial_status: "unused" | "used" | "cancelled";
     };
     CompositeTypes: {
       [_ in never]: never;

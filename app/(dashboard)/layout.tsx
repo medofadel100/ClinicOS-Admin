@@ -73,6 +73,9 @@ export default function DashboardLayout({
           <Link href="/storage" className="px-3 py-2 rounded-md hover:bg-slate-800 transition-colors">
             {t("storage") || "Storage"}
           </Link>
+          <Link href="/serials" className="px-3 py-2 rounded-md hover:bg-slate-800 transition-colors">
+            {t("serials") || "Serials"}
+          </Link>
           <Link href="/profile" className="px-3 py-2 rounded-md hover:bg-slate-800 transition-colors text-blue-300 mt-4">
             {t("profile") || "My Profile"}
           </Link>
