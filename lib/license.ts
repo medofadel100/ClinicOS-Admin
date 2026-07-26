@@ -1,10 +1,10 @@
 import crypto from "crypto";
 import { createClient } from "./supabase/server";
 import { getClinicEntitlements } from "./entitlements";
+import { SupabaseClient } from "@supabase/supabase-js";
 
-// Returns the active license or creates one if it doesn't exist
-export async function issueOrUpdateLicense(clinicId: string, expiresAt: Date) {
-  const supabase = createClient();
+export async function issueOrUpdateLicense(clinicId: string, expiresAt: Date, customClient?: SupabaseClient) {
+  const supabase = customClient || createClient();
   const privateKeyPem = process.env.LICENSE_PRIVATE_KEY;
 
   if (!privateKeyPem) {
@@ -12,7 +12,7 @@ export async function issueOrUpdateLicense(clinicId: string, expiresAt: Date) {
   }
 
   // 1. Get feature entitlements
-  const features = await getClinicEntitlements(clinicId);
+  const features = await getClinicEntitlements(clinicId, customClient);
   const featureCodes = features.map((f) => f.code);
 
   // 2. Prepare payload

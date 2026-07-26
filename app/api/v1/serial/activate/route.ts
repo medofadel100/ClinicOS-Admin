@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { issueOrUpdateLicense } from "@/lib/license";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
       periodEnd.setMonth(periodEnd.getMonth() + 1);
     }
 
-    const { error: subError } = await supabaseAdmin
+    const { data: subscription, error: subError } = await supabaseAdmin
       .from("clinic_subscriptions")
       .insert({
         clinic_id: clinic.id,
@@ -85,11 +86,38 @@ export async function POST(request: NextRequest) {
         price_locked_egp: serial.plans.price_egp,
         current_period_start: now.toISOString(),
         current_period_end: periodEnd.toISOString(),
-      });
+      })
+      .select("id")
+      .single();
 
-    if (subError) {
+    if (subError || !subscription) {
       await supabaseAdmin.auth.admin.deleteUser(authUser.user.id);
       return NextResponse.json({ error: "Failed to create subscription" }, { status: 500 });
+    }
+
+    // Record payment
+    const { error: paymentError } = await supabaseAdmin
+      .from("payments")
+      .insert({
+        clinic_id: clinic.id,
+        subscription_id: subscription.id,
+        amount_egp: serial.plans.price_egp,
+        payment_method: "other",
+        status: "confirmed",
+        reference_note: `Serial activation: ${serial.code}`,
+        recorded_by: serial.created_by,
+        paid_at: now.toISOString(),
+      });
+
+    if (paymentError) {
+      console.error("Payment recording failed:", paymentError);
+    }
+
+    // Auto-issue license
+    try {
+      await issueOrUpdateLicense(clinic.id, periodEnd, supabaseAdmin);
+    } catch (err) {
+      console.error("Failed to auto-issue license during serial activation:", err);
     }
 
     // Mark serial as used

@@ -75,6 +75,26 @@ export function SerialsClient({ serials, plans }: { serials: SerialRow[]; plans:
     }
   };
 
+  const exportCSV = () => {
+    const headers = ["Code", "Plan", "Status", "Clinic", "Created At", "Used At"];
+    const rows = serials.map((s) => [
+      s.code,
+      s.plans?.name_en || "",
+      s.status,
+      s.clinics?.name || "",
+      new Date(s.created_at).toLocaleDateString(),
+      s.used_at ? new Date(s.used_at).toLocaleDateString() : "",
+    ]);
+    const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `serials-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const statusColor = (status: string) => {
     switch (status) {
       case "unused": return "bg-emerald-100 text-emerald-700";
@@ -94,12 +114,20 @@ export function SerialsClient({ serials, plans }: { serials: SerialRow[]; plans:
             {t("serialCount")}: {serials.length} | {t("unusedSerials")}: {unusedCount} | {t("usedSerials")}: {usedCount}
           </p>
         </div>
-        <button
-          onClick={() => setShowGenerate(!showGenerate)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
-        >
-          + {t("generateNewSerial")}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={exportCSV}
+            className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-medium text-sm"
+          >
+            CSV ⬇
+          </button>
+          <button
+            onClick={() => setShowGenerate(!showGenerate)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
+          >
+            + {t("generateNewSerial")}
+          </button>
+        </div>
       </div>
 
       {/* Generate Form */}

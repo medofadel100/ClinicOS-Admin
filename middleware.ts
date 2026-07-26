@@ -58,32 +58,43 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith("/admins") || request.nextUrl.pathname === "/") {
-    if (!user) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
+  const pathname = request.nextUrl.pathname;
 
-    // Check platform_admins
-    const { data: adminData } = await supabase
-      .from("platform_admins")
-      .select("role, is_active")
-      .eq("auth_user_id", user.id)
-      .single();
+  const isPublicPath =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/activate") ||
+    pathname.startsWith("/api/v1/serial/activate");
 
-    if (!adminData || !adminData.is_active) {
-      await supabase.auth.signOut();
-      return NextResponse.redirect(new URL("/login?error=unauthorized", request.url));
-    }
+  const isStaticAsset =
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon") ||
+    pathname.match(/\.(svg|png|jpg|jpeg|gif|webp)$/);
 
-    // Role-based check
-    if (request.nextUrl.pathname.startsWith("/admins") && adminData.role !== "super_admin") {
+  if (isStaticAsset) return response;
+
+  if (isPublicPath) {
+    if (pathname.startsWith("/login") && user) {
       return NextResponse.redirect(new URL("/", request.url));
     }
+    return response;
   }
 
-  // Redirect logged-in users away from auth pages
-  if (request.nextUrl.pathname.startsWith("/login") && user) {
+  if (!user) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  const { data: adminData } = await supabase
+    .from("platform_admins")
+    .select("role, is_active")
+    .eq("auth_user_id", user.id)
+    .single();
+
+  if (!adminData || !adminData.is_active) {
+    await supabase.auth.signOut();
+    return NextResponse.redirect(new URL("/login?error=unauthorized", request.url));
+  }
+
+  if (pathname.startsWith("/admins") && adminData.role !== "super_admin") {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -92,13 +103,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
-     */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
